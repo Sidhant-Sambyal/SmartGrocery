@@ -39,5 +39,5 @@ async def classify_item(
     except LLMLimitExceededError as exc:
         raise HTTPException(
             status_code=429,
-            detail=str(exc),
+            detail="LLM Limit exceeded try after sometime",
         ) from exc
