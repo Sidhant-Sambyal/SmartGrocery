@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from google import genai
 
@@ -22,58 +23,8 @@ VALID_AISLES = {
 class NonGroceryItemError(ValueError):
     pass
 
-AISLE_KEYWORDS = {
-    "produce": {
-        "apple",
-        "banana",
-        "carrot",
-        "lettuce",
-        "onion",
-        "orange",
-        "potato",
-        "tomato",
-        "vegetable",
-    },
-    "dairy": {
-        "butter",
-        "cheese",
-        "curd",
-        "milk",
-        "paneer",
-        "yogurt",
-    },
-    "bakery": {
-        "bagel",
-        "bread",
-        "bun",
-        "cake",
-        "croissant",
-        "muffin",
-    },
-    "frozen": {
-        "frozen",
-        "ice cream",
-        "nuggets",
-        "peas",
-    },
-    "household": {
-        "detergent",
-        "soap",
-        "tissue",
-        "toilet",
-        "trash",
-    },
-}
-
-
-def classify_aisle_locally(item: str) -> str | None:
-    normalized_item = item.strip().lower()
-
-    for aisle, keywords in AISLE_KEYWORDS.items():
-        if any(keyword in normalized_item for keyword in keywords):
-            return aisle
-
-    return None
+class LLMLimitExceededError(Exception):
+    pass
 
 
 async def classify_aisle(item: str) -> str:
@@ -104,24 +55,13 @@ Guardrails:
             contents=prompt,
         )
     except Exception:
-        fallback_aisle = classify_aisle_locally(item)
-
-        if fallback_aisle is None:
-            logger.warning(
-                "Gemini aisle classification failed and local fallback did not match a grocery item",
-                exc_info=True,
-            )
-            raise NonGroceryItemError(
-                "Item is not a grocery item."
-            )
-
         logger.warning(
-            "Gemini aisle classification failed; using local fallback: aisle=%s",
-            fallback_aisle,
+            "Gemini aisle classification failed",
             exc_info=True,
         )
-
-        return fallback_aisle
+        raise LLMLimitExceededError(
+            "LLM limit exceeded, try after sometime."
+        )
 
     aisle = getattr(response, "text", "").strip().lower()
 
@@ -131,21 +71,12 @@ Guardrails:
         )
 
     if aisle not in VALID_AISLES:
-        fallback_aisle = classify_aisle_locally(item)
-
-        if fallback_aisle is None:
-            logger.warning(
-                "Gemini returned invalid aisle and local fallback did not match a grocery item: %s",
-                aisle,
-            )
-            raise NonGroceryItemError(
-                "Item is not a grocery item."
-            )
-
         logger.warning(
             "Gemini returned invalid aisle: %s",
             aisle,
         )
-        return fallback_aisle
+        raise NonGroceryItemError(
+            "Item is not a grocery item."
+        )
 
     return aisle

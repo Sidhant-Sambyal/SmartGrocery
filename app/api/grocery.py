@@ -8,6 +8,7 @@ from app.models.request_models import (
 
 from app.services.llm_service import (
     NonGroceryItemError,
+    LLMLimitExceededError,
 )
 
 from app.services.rule_engine import (
@@ -34,4 +35,9 @@ async def classify_item(
         raise HTTPException(
             status_code=400,
             detail="This item does not belong to a grocery category.",
+        ) from exc
+    except LLMLimitExceededError as exc:
+        raise HTTPException(
+            status_code=429,
+            detail=str(exc),
         ) from exc
