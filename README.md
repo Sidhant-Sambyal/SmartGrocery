@@ -2,8 +2,10 @@
 
 AI-powered grocery classification & list builder, using Gemini to automatically sort items into aisles.
 
-**Live Demo (Vercel):** https://smart-grocery-ashy.vercel.app
-**Public Repository:** https://github.com/Sidhant-Sambyal/SmartGrocery  
+**Live Demo (Vercel):** [https://smart-grocery-gules.vercel.app](https://smart-grocery-gules.vercel.app)
+
+
+**Public Repository:** [https://github.com/Sidhant-Sambyal/SmartGrocery](https://github.com/Sidhant-Sambyal/SmartGrocery)  
 
 ## How to Run Locally
 
