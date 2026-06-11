@@ -17,12 +17,15 @@ def configure_logging() -> None:
     ]
 
     if settings.LOG_FILE:
-        handlers.append(
-            logging.FileHandler(
-                settings.LOG_FILE,
-                encoding="utf-8",
+        try:
+            handlers.append(
+                logging.FileHandler(
+                    settings.LOG_FILE,
+                    encoding="utf-8",
+                )
             )
-        )
+        except OSError:
+            pass
 
     logging.basicConfig(
         level=log_level,
