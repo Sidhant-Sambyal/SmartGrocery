@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartGrocery — Sign In</title>
+  <meta name="description" content="Sign in to SmartGrocery with your email." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    /* ── Login-specific overrides ── */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.92) translateY(16px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Removed login logo styles */
+
+    .login-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-top: -0.5rem;
+      text-align: center;
+    }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      text-align: center;
+      margin-top: -1rem;
+      line-height: 1.5;
+    }
+
+    .login-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+    }
+
+    .form-input {
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.75rem 1rem;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      outline: none;
+      width: 100%;
+    }
+
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      background: rgba(124,110,247,0.08);
+      box-shadow: 0 0 0 3px rgba(124,110,247,0.18);
+    }
+
+    .form-input.input-error {
+      border-color: var(--danger);
+      background: rgba(248,113,113,0.06);
+      box-shadow: 0 0 0 3px rgba(248,113,113,0.12);
+    }
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .login-btn:hover:not(:disabled) {
+      background: var(--accent-hov);
+    }
+
+    .login-btn:active:not(:disabled) { transform: translateY(0); }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .login-error {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--danger-bg);
+      border: 1px solid rgba(248,113,113,0.3);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 1rem;
+      font-size: 0.86rem;
+      color: var(--danger);
+      animation: slideDown 0.25s ease;
+    }
+
+    .login-divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .login-divider::before,
+    .login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .domain-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(124,110,247,0.12);
+      border: 1px solid rgba(124,110,247,0.3);
+      border-radius: 20px;
+      color: var(--accent-hov);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.2rem 0.65rem;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Simple light background -->
+
+  <div class="login-wrapper">
+    <div class="login-box">
+
+      <!-- Heading -->
+      <h1 class="login-title">SmartGrocery</h1>
+      <p class="login-subtitle">Sign in with your email<br>to access the grocery classifier</p>
+
+      <!-- Error banner -->
+      <div id="login-error" class="login-error hidden" role="alert">
+        <span>⚠️</span>
+        <span id="error-msg">Invalid email or access denied.</span>
+      </div>
+
+      <!-- Form -->
+      <form id="login-form" class="login-form" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="email-input">Email</label>
+          <input
+            type="email"
+            id="email-input"
+            class="form-input"
+            placeholder="you@example.com"
+            autocomplete="email"
+            autofocus
+            required
+          />
+        </div>
+
+        <button type="submit" id="login-btn" class="login-btn">
+          <span id="btn-text">Sign In</span>
+          <span id="btn-spin" class="btn-spinner hidden" aria-hidden="true"></span>
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    const form      = document.getElementById('login-form');
+    const emailInp  = document.getElementById('email-input');
+    const loginBtn  = document.getElementById('login-btn');
+    const btnText   = document.getElementById('btn-text');
+    const btnSpin   = document.getElementById('btn-spin');
+    const errBanner = document.getElementById('login-error');
+    const errMsg    = document.getElementById('error-msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = emailInp.value.trim();
+      if (!email) { shake(emailInp); return; }
+
+      hideError();
+      setLoading(true);
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+          credentials: 'include',
+        });
+
+        if (res.ok) {
+          // Redirect to main app
+          window.location.href = '/';
+        } else {
+          const data = await res.json().catch(() => ({}));
+          showError(data.detail || 'Access denied.');
+          emailInp.classList.add('input-error');
+        }
+      } catch {
+        showError('Cannot reach the server. Is the backend running?');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    emailInp.addEventListener('input', () => {
+      emailInp.classList.remove('input-error');
+      hideError();
+    });
+
+    function setLoading(on) {
+      loginBtn.disabled = on;
+      btnText.textContent = on ? 'Signing in…' : 'Sign In';
+      btnSpin.classList.toggle('hidden', !on);
+    }
+
+    function showError(msg) {
+      errMsg.textContent = msg;
+      errBanner.classList.remove('hidden');
+    }
+
+    function hideError() {
+      errBanner.classList.add('hidden');
+    }
+
+    function shake(el) {
+      el.style.animation = 'none';
+      el.getBoundingClientRect();
+      el.style.animation = 'shakeX 0.4s ease';
+      setTimeout(() => (el.style.animation = ''), 450);
+    }
+
+    const s = document.createElement('style');
+    s.textContent = `
+      @keyframes shakeX {
+        0%,100% { transform: translateX(0); }
+        20%,60% { transform: translateX(-6px); }
+        40%,80% { transform: translateX(6px); }
+      }`;
+    document.head.appendChild(s);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartGrocery — AI Grocery Classifier</title>
+  <meta name="description"
+    content="Intelligently classify and organize your grocery items with AI-powered aisle detection powered by Gemini." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: rgba(13, 15, 23, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 1.5rem;
+      gap: 0.75rem;
+      z-index: 100;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 20px;
+      padding: 0.22rem 0.75rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .user-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c6ef7, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 0.25rem 0.65rem;
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition), background var(--transition);
+    }
+
+    .logout-btn:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .page-wrapper {
+      padding-top: 4rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top bar -->
+  <nav class="topbar">
+    <div class="user-pill">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <span id="user-email">loading…</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Sign out</button>
+  </nav>
+
+  <!-- Simple light background -->
+
+  <div class="page-wrapper">
+
+    <!-- Header -->
+    <header class="hero">
+      <h1>SmartGrocery</h1>
+      <p class="tagline">AI-powered grocery classification &amp; list builder</p>
+    </header>
+
+    <!-- Input Card -->
+    <section class="card input-card" aria-label="Add grocery item">
+      <form id="grocery-form" novalidate>
+        <div class="input-row">
+          <input type="text" id="item-input" placeholder="e.g. 500g milk, apple, salt, bread..." autocomplete="off"
+            spellcheck="false" autofocus aria-label="Grocery item" />
+          <button type="submit" id="add-btn" aria-label="Add item">
+            <span id="btn-label">Add</span>
+            <span id="btn-spinner" class="btn-spinner hidden" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <!-- Instruction guide -->
+        <div class="input-guide" id="input-guide">
+          <p class="guide-title">📋 How to add items</p>
+          <ul class="guide-list">
+            <li><strong>With quantity:</strong> <code>amount</code> + <code>unit</code> + <code>name</code> — e.g.
+              <em>500g milk</em>, <em>2kg rice</em>, <em>1l oil</em></li>
+            <li><strong>Without quantity:</strong> just the item name — e.g. <em>apple</em>, <em>bread</em>, <em>frozen
+                peas</em></li>
+          </ul>
+          <p class="guide-units">Supported units: <code>g</code> <code>kg</code> <code>mg</code> <code>ml</code>
+            <code>cl</code> <code>l</code></p>
+        </div>
+
+        <div class="quick-hints">
+          <span class="hint-label">Quick add:</span>
+          <button type="button" class="hint-chip" onclick="quickFill('500g milk')">500g milk</button>
+          <button type="button" class="hint-chip" onclick="quickFill('apple')">apple</button>
+          <button type="button" class="hint-chip" onclick="quickFill('salt')">salt</button>
+          <button type="button" class="hint-chip" onclick="quickFill('frozen peas')">frozen peas</button>
+          <button type="button" class="hint-chip" onclick="quickFill('bread')">bread</button>
+          <button type="button" class="hint-chip" onclick="quickFill('dish soap')">dish soap</button>
+        </div>
+      </form>
+
+      <!-- Error banner -->
+      <div id="error-banner" class="error-banner hidden" role="alert">
+        <span class="error-icon">⚠️</span>
+        <span id="error-text">Error message here</span>
+        <button class="error-close" onclick="hideError()" aria-label="Dismiss">×</button>
+      </div>
+    </section>
+
+
+
+    <!-- Grocery List -->
+    <section id="list-section" aria-label="Grocery list">
+
+      <!-- Summary bar (shown when items exist) -->
+      <div id="list-header" class="list-header hidden">
+        <span id="item-count" class="item-count">0 items</span>
+        <button id="clear-all-btn" onclick="clearAll()" class="clear-all-btn">Clear All</button>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">🛍️</div>
+        <p class="empty-title">Your list is empty</p>
+        <p class="empty-sub">Type an item above and hit <strong>Add</strong> to get started</p>
+      </div>
+
+      <!-- Items list -->
+      <ul id="grocery-list" class="grocery-list" role="list"></ul>
+
+    </section>
+
+    <footer class="footer">
+      <p>SmartGrocery &copy; 2026</p>
+    </footer>
+
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+
+</html>

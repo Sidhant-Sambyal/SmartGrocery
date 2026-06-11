@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+aiofiles
+python-dotenv
+google-genai
+pydantic
+pydantic-settings
+python-jose
+passlib
+httpx
+pytest
